@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ShelfSense Edge</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= HEADER ================= -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">Shelfsense<em>Edge</em></span>
+    </div>
+
+    <div class="profiles" id="profiles">
+      <button class="profile-chip active" data-id="tomato">Tomat</button>
+      <button class="profile-chip" data-id="banana">Pisang</button>
+    </div>
+
+    <div class="topstatus">
+      <span class="dot" id="camDot"></span>
+      <span id="camText">menghubungkan…</span>
+      <span class="sep">·</span>
+      <span id="engineText">—</span>
+      <span class="sep">·</span>
+      <span id="fpsText">0 fps</span>
+      <span class="sep">·</span>
+      <span class="calstate" id="calText">belum dikalibrasi</span>
+    </div>
+
+    <button class="btn" id="calibrateBtn">Kalibrasi warna</button>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main class="row-main">
+
+    <!-- kamera -->
+    <section class="panel camera">
+      <div class="panel-label">
+        <span>Kamera</span>
+        <span class="badge" id="lockChip">Memindai…</span>
+      </div>
+
+      <div class="cam-wrap">
+        <img id="videoBg" aria-hidden="true" alt="" />
+        <img id="video" alt="" role="img" aria-label="Pratinjau kamera langsung" />
+        <canvas id="overlay"></canvas>
+        <div class="scan-zone" id="scanZone"></div>
+        <div class="cam-empty" id="camEmpty">
+          <strong>Letakkan tomat di tengah bingkai</strong>
+          <span>Hasil muncul dalam satu detik</span>
+        </div>
+      </div>
+
+      <div class="envbar">
+        <div class="slider">
+          <div class="slider-head">
+            <label for="temp">Suhu ruangan</label>
+            <b id="tempVal">24°C</b>
+          </div>
+          <input type="range" id="temp" min="5" max="38" step="1" value="24" />
+          <div class="ticks"><span>5°</span><span>20°</span><span>38°</span></div>
+          <div class="chill" id="chillNote">Di bawah 12°C tomat bisa rusak karena dingin</div>
+        </div>
+        <div class="slider">
+          <div class="slider-head">
+            <label for="time">Proyeksi waktu</label>
+            <b id="timeVal">sekarang</b>
+          </div>
+          <input type="range" id="time" min="0" max="72" step="1" value="0" />
+          <div class="ticks"><span>sekarang</span><span>+36 jam</span><span>+72 jam</span></div>
+          <div class="chill muted">Menggeser waktu, bukan objek</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- label harga -->
+    <section class="panel result" id="resultPanel">
+
+      <div class="label-card" id="labelCard">
+        <div class="label-stripe"></div>
+        <div class="label-body">
+          <div class="label-head">
+            <span class="label-kicker">Kondisi</span>
+            <span class="grade-pill" id="gradePill">—</span>
+          </div>
+          <div class="big empty" id="bigValue">
+            <span id="condNum">—</span><span class="pct">%</span>
+          </div>
+          <div class="grade-label" id="gradeLabel"></div>
+
+          <div class="label-divider"></div>
+
+          <div class="price-row">
+            <div class="price-cell">
+              <div class="label-kicker">Diskon</div>
+              <div class="disc" id="discVal">—</div>
+            </div>
+            <div class="price-cell right">
+              <div class="label-kicker">Harga</div>
+              <div class="price" id="priceVal">Rp —</div>
+              <div class="base" id="baseVal"></div>
+              <div class="save" id="saveVal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail">
+        <div class="bar-row">
+          <span class="bar-label">Kematangan</span>
+          <div class="bar"><i id="matBar"></i></div>
+          <span class="bar-val" id="matVal">—</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Kerusakan</span>
+          <div class="bar warn"><i id="defBar"></i></div>
+          <span class="bar-val" id="defVal">—</span>
+        </div>
+
+        <ul class="signals" id="signals"></ul>
+
+        <div class="next-band" id="nextBand">—</div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="result-foot">
+        <div><span>Sisa umur</span><b id="remainVal">—</b></div>
+        <div><span>Keyakinan</span><b id="confVal">—</b></div>
+        <div><span>Tahap</span><b id="stageVal">—</b></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= BOTTOM ================= -->
+  <section class="row-bottom">
+
+    <div class="panel chart-panel">
+      <div class="panel-label">
+        <span>Proyeksi kualitas, 72 jam</span>
+        <span class="legend">
+          <i class="sw prime"></i> masa jual baik
+          <i class="sw now"></i> sekarang
+        </span>
+      </div>
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div class="panel tabs">
+      <div class="tab-head">
+        <button class="tab-btn active" data-tab="consumer">Aplikasi konsumen</button>
+        <button class="tab-btn" data-tab="esg">Dampak ESG</button>
+      </div>
+
+      <div class="tab-body" id="tab-consumer">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="notif">
+              <div class="notif-icon">🍅</div>
+              <div>
+                <div class="notif-title">Diskon di sekitarmu</div>
+                <div class="notif-text" id="notifText">Menunggu hasil pemindaian…</div>
+                <div class="notif-sub">Stok terbatas · 1,2 km</div>
+              </div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title" id="miniTitle">Tomat</div>
+              <div class="mini-price" id="miniPrice">Rp —</div>
+              <div class="mini-note">Harga menyesuaikan kondisi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-body hidden" id="tab-esg">
+        <div class="esg-grid">
+          <div class="esg-card">
+            <div class="esg-label">Pangan terselamatkan</div>
+            <div class="esg-num">128<span>kg</span></div>
+            <div class="esg-sub">bulan ini · mockup</div>
+          </div>
+          <div class="esg-card">
+            <div class="esg-label">Emisi dihindari</div>
+            <div class="esg-num">342<span>kg CO₂e</span></div>
+            <div class="esg-sub">setara 15 pohon · mockup</div>
+          </div>
+          <div class="esg-card">
+            <div class="esg-label">Margin terselamatkan</div>
+            <div class="esg-num">4,2<span>juta</span></div>
+            <div class="esg-sub">bulan ini · mockup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

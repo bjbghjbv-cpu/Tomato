@@ -1,0 +1,107 @@
+# ShelfSense Edge - profil komoditas: PISANG
+# Profil kedua. Bukti bahwa menambah komoditas = menambah file, bukan kode.
+
+id: banana
+display_name: "Pisang"
+unit: "buah"
+base_price: 4000
+hold_price: 3000
+detector_class: banana
+
+stages:
+  - name: green
+    label: "Hijau"
+    hue: [[36, 85]]
+    s_min: 60
+    v_min: 30
+    quality: 0.40
+    expected_s: 150
+
+  - name: yellow
+    label: "Kuning matang"
+    hue: [[18, 35]]
+    s_min: 90
+    v_min: 50
+    quality: 1.00
+    expected_s: 200
+
+  - name: spotted
+    label: "Bercak"
+    hue: [[0, 17]]
+    s_min: 40
+    v_min: 20
+    v_max: 150
+    quality: 0.60
+    expected_s: 140
+
+defect:
+  weights:
+    mold: 0.30
+    bruise: 0.30
+    wrinkle: 0.15
+    dullness: 0.25
+
+  mold:
+    s_max: 45
+    v_min: 130
+    v_max: 215
+    min_area_frac: 0.004
+    full_scale: 0.10
+
+  bruise:
+    v_max: 65
+    s_min: 25
+    min_area_frac: 0.002
+    full_scale: 0.12
+
+  wrinkle:
+    lo: 6.0
+    hi: 40.0
+
+  dullness:
+    s_drop: 0.20
+
+shelf_life:
+  max_hours_at_20c: 168
+  q10: 2.2
+  temp_ref_c: 20
+  ripening_rate_per_hour: 0.020
+  decay_rate_per_hour: 0.0026
+  chilling_threshold_c: 10
+  chilling_severity: 2.5
+  rh_ideal: [85, 95]
+
+grades:
+  - grade: A
+    label: "Layak jual"
+    min_condition: 85
+    discount: 0
+    color: "#6b8a5c"
+  - grade: B
+    label: "Jual cepat"
+    min_condition: 70
+    discount: 15
+    color: "#c08a2e"
+  - grade: C
+    label: "Potong harga"
+    min_condition: 50
+    discount: 30
+    color: "#c2662f"
+  - grade: D
+    label: "Sisa waktu kritis"
+    min_condition: 0
+    discount: 50
+    color: "#a33a2a"
+
+hours_rules:
+  - max_hours: 12
+    discount: 50
+  - max_hours: 36
+    discount: 30
+  - max_hours: 72
+    discount: 15
+
+hold:
+  maturity_max: 0.40
+  defect_max: 0.20
+  label: "Belum matang — tahan"

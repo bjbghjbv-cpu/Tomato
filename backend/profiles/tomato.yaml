@@ -1,0 +1,163 @@
+# ShelfSense Edge - profil komoditas: TOMAT
+# Semua ambang di sini bisa diubah tanpa menyentuh kode.
+# Nilai awal = tebakan teknis; dikalibrasi ulang saat rehearsal (lihat README).
+
+id: tomato
+display_name: "Tomat"
+unit: "buah"
+base_price: 2000
+hold_price: 1200
+detector_class: tomato
+
+# ---------------------------------------------------------------
+# Tahap kematangan (urutan naik). Hue dalam OpenCV: 0-179.
+# Merah berada di dua ujung (0-5 dan 173-179) -> wraparound.
+# ---------------------------------------------------------------
+stages:
+  - name: mature_green
+    label: "Hijau matang"
+    hue: [[41, 75]]
+    s_min: 60
+    v_min: 30
+    quality: 0.35
+    expected_s: 120
+
+  - name: breaker
+    label: "Breaker"
+    hue: [[29, 40]]
+    s_min: 60
+    v_min: 30
+    quality: 0.55
+    expected_s: 140
+
+  - name: turning
+    label: "Turning"
+    hue: [[20, 28]]
+    s_min: 70
+    v_min: 35
+    quality: 0.70
+    expected_s: 160
+
+  - name: pink
+    label: "Pink"
+    hue: [[14, 19]]
+    s_min: 80
+    v_min: 40
+    quality: 0.85
+    expected_s: 175
+
+  - name: light_red
+    label: "Merah muda"
+    hue: [[6, 13]]
+    s_min: 90
+    v_min: 40
+    quality: 0.95
+    expected_s: 190
+
+  - name: red_ripe
+    label: "Merah matang"
+    hue: [[0, 5], [173, 179]]
+    s_min: 90
+    v_min: 40
+    quality: 1.00
+    expected_s: 200
+
+# ---------------------------------------------------------------
+# Sinyal kerusakan. Bobot total = 1.0.
+# Angka "min_area_frac" = luas minimum blob relatif terhadap crop,
+# supaya noise JPEG tidak dihitung sebagai jamur/memar.
+# ---------------------------------------------------------------
+defect:
+  weights:
+    mold: 0.30
+    bruise: 0.20
+    anomaly: 0.30
+    wrinkle: 0.05
+    dullness: 0.10
+
+  # Porsi permukaan buah yang tidak lagi terlihat sehat.
+  # lo = toleransi (di bawah ini diabaikan), hi = dianggap rusak penuh.
+  anomaly:
+    lo: 0.12
+    hi: 0.75
+
+  mold:
+    s_max: 60
+    v_min: 120
+    v_max: 250
+    min_area_frac: 0.004
+    full_scale: 0.05
+
+  bruise:
+    v_max: 70
+    s_min: 25
+    min_area_frac: 0.002
+    full_scale: 0.10
+
+  wrinkle:
+    # Laplacian variance ternormalisasi: di bawah lo = mulus,
+    # di atas hi = jelas keriput.
+    lo: 6.0
+    hi: 40.0
+
+  dullness:
+    # Penurunan saturasi relatif terhadap expected_s tahap dominan.
+    s_drop: 0.25
+
+# ---------------------------------------------------------------
+# Model umur simpan (dua proses: pematangan vs pembusukan)
+# ---------------------------------------------------------------
+shelf_life:
+  # max_hours_at_20c hanya acuan dokumentasi; laju sebenarnya ditentukan
+  # oleh decay_rate_per_hour. Hasil simulasi: ±80 jam pada 20°C.
+  max_hours_at_20c: 96
+  q10: 2.2
+  temp_ref_c: 20
+  ripening_rate_per_hour: 0.026
+  decay_rate_per_hour: 0.0038
+  chilling_threshold_c: 12
+  chilling_severity: 3.5
+  rh_ideal: [90, 95]
+
+# ---------------------------------------------------------------
+# Aturan grading & diskon
+# ---------------------------------------------------------------
+grades:
+  - grade: A
+    label: "Layak jual"
+    min_condition: 85
+    discount: 0
+    color: "#6b8a5c"
+  - grade: B
+    label: "Jual cepat"
+    min_condition: 70
+    discount: 15
+    color: "#c08a2e"
+  - grade: C
+    label: "Potong harga"
+    min_condition: 50
+    discount: 30
+    color: "#c2662f"
+  - grade: D
+    label: "Sisa waktu kritis"
+    min_condition: 0
+    discount: 50
+    color: "#a33a2a"
+
+# Diskon minimum berdasarkan sisa umur simpan (jam).
+# Catatan: ambang ini khas TOMAT. Model memberi umur ±80 jam untuk tomat
+# matang pada 20°C, jadi memakai angka pisang (72/36/12) akan membuat tomat
+# segar pun selalu didiskon.
+hours_rules:
+  - max_hours: 10
+    discount: 50
+  - max_hours: 24
+    discount: 30
+  - max_hours: 48
+    discount: 15
+
+# State khusus: tomat belum matang -> jangan didiskon, kirim ke pematangan.
+hold:
+  maturity_max: 0.45
+  defect_max: 0.20
+  label: "Belum matang — tahan"

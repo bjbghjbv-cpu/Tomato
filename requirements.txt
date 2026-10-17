@@ -1,0 +1,11 @@
+torch
+torchvision
+ultralytics
+opencv-python
+fastapi
+uvicorn[standard]
+pyyaml
+numpy
+polars
+pillow
+requests

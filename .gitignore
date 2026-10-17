@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Dataset & artefak training (bisa dibuat ulang lewat tools/)
+data/
+runs/
+
+# Foto uji lokal (sebagian stok ber-watermark)
+tomatsegar/
+gambartomatbusuk/
+camera_scan/
+
+# Sementara
+*.cache
+ui*.png
+_coco/
+.pytest_cache/
+.DS_Store
+Thumbs.db
