@@ -152,15 +152,37 @@ python3.11 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-> PyTorch versi CUDA (opsional, hanya untuk training cepat).
-> Unduhan ±2,5 GB:
+> **PyTorch wajib, versi CUDA tidak.**
+> Ultralytics/YOLOv8 berjalan di atas PyTorch, jadi PyTorch harus ada. Tapi
+> wheel CUDA (2,5 GB) hanya diperlukan untuk **training cepat**.
+>
+> | | CPU | CUDA (cu124) |
+> |---|---|---|
+> | Unduhan | ±200 MB | ±2,5 GB |
+> | Terpakai di disk | ±1 GB | ±5 GB |
+> | Menjalankan dashboard | ✅ | ✅ |
+> | Inferensi YOLO | 30–80 ms/frame | 5–10 ms/frame |
+> | Training | bisa, tapi lambat | 80 epoch ≈ 17 menit (RTX 3060) |
+>
+> **Hanya untuk menjalankan dashboard — pasang versi CPU lebih dulu:**
+>
+> ```powershell
+> .venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+> .venv\Scripts\python -m pip install -r requirements.txt
+> ```
+>
+> **Kalau ingin training di GPU**, pasang wheel CUDA sebelum `requirements.txt`:
 >
 > ```powershell
 > .venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 > ```
 >
-> Tanpa langkah ini, `requirements.txt` memasang PyTorch versi CPU yang cukup
-> untuk menjalankan dashboard.
+> Urutannya penting: PyTorch dulu, baru `requirements.txt`. Kalau dibalik, pip
+> memasang wheel default yang lebih besar. Berpindah dari CPU ke CUDA nanti:
+>
+> ```powershell
+> .venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124 --force-reinstall
+> ```
 
 ### 4.4 Model
 
